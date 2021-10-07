@@ -29,7 +29,7 @@
         </tbody>
       </table>
     </div>
-    <p> square: {{info.width}} x {{info.height}} ---- rover: ({{info.x}}, {{info.y}}) {{info.orientation}} </p>
+    <p> square: {{info.width}} x {{info.height}} ---- rover: ({{info.x}}, {{info.y}}) {{info.orientation}} ---- rover inside square: {{info.inSquare}} </p>
   </div>
 </template>
 
@@ -52,7 +52,8 @@ export default {
         width:6,
         x:4,
         y:2,
-        orientation:'N'
+        orientation:'N',
+        inSquare:true
       }
     }
   },
@@ -68,7 +69,8 @@ export default {
   },
   methods: {
     move(e) {
-      for (var i = 0; i < e.length; i++) {
+      let i=0
+      do {
         switch (e.charAt(i)) {
           case "A":
             this.advance();
@@ -80,29 +82,39 @@ export default {
             this.right();
             break;
         }
-      }
+        i++
+      } while (i < e.length && this.info.inSquare)
     },
     advance() {
       switch (this.info.orientation) {
         case 'N':
           if(this.info.y<this.info.height) {
             this.info.y++;
-          } else {alert('Surt per dalt')}
+          } else {
+            alert('Surt per dalt');
+            this.info.inSquare = false;
+          }
           break;
         case 'S':
           if(this.info.y>0) {
             this.info.y--;
-          } else {alert('Surt per baix')}
+          } else {
+            alert('Surt per baix')
+            this.info.inSquare = false;}
           break;
         case 'E':
           if(this.info.x<this.info.width) {
             this.info.x++;
-          } else {alert('Surt per dreta')}
+          } else {
+            alert('Surt per dreta')
+            this.info.inSquare = false;}
           break;
         case 'W':
           if(this.info.x>0) {
             this.info.x--;
-          } else {alert('Surt per esquerra')}
+          } else {
+            alert('Surt per esquerra')
+            this.info.inSquare = false;}
           break;
       }
     },
