@@ -30,10 +30,10 @@
       </table>
     </div>
     <div class="justify-content-center d-flex pb-5">
-      <div class="card col-2 p-0 bg-primary">square: {{width+1}} x {{height+1}}</div>
-      <div class="card col-2 p-0 bg-warning text-dark mx-3">rover: ({{x}}, {{y}}) {{orientation}}</div>
-      <div class="card col-2 p-0 bg-success" v-if="inSquare && !alert"> inside square</div>
-      <div class="card col-2 p-0 bg-danger" v-else>Outside square</div>
+      <div class="card col-2 p-0 bg-primary">Square size: {{width+1}} x {{height+1}}</div>
+      <div class="card col-2 p-0 bg-warning text-dark mx-3">Rover position: ({{x}}, {{y}}) {{orientation}}</div>
+      <div class="card col-2 p-0 bg-success" v-if="inSquare && !alert">Inside square: true</div>
+      <div class="card col-2 p-0 bg-danger" v-else>Inside square: false</div>
     </div>
   </div>
 </template>
@@ -52,8 +52,7 @@ export default {
     return {
       set: false,
       command: false,
-      counter: 0,
-      alert: false,
+      counter: 0
     }
   },
   computed: {
@@ -112,36 +111,16 @@ export default {
     advance() {
       switch (this.orientation) {
         case 'N':
-          if(this.y<this.height) {
-            this.$store.dispatch('setY', this.y+1);
-          } else {
-            alert('Rover left the square to the North');
-            this.alert = true;
-          }
+          this.$store.dispatch('setY', this.y+1);
           break;
         case 'S':
-          if(this.y>0) {
-            this.$store.dispatch('setY', this.y-1);
-          } else {
-            alert('Rover left the square to the South');
-            this.alert = true;
-          }
+          this.$store.dispatch('setY', this.y-1);
           break;
         case 'E':
-          if(this.x<this.width) {
-            this.$store.dispatch('setX', this.x+1);
-          } else {
-            alert('Rover left the square to the East');
-            this.alert = true;
-          }
+          this.$store.dispatch('setX', this.x+1);
           break;
         case 'W':
-          if(this.x>0) {
-            this.$store.dispatch('setX', this.x-1);
-          } else {
-            alert('Rover left the square to the West');
-            this.alert = true;
-          }
+          this.$store.dispatch('setX', this.x-1);
           break;
       }
     },
