@@ -8,28 +8,33 @@
       Once infoized, you can enter a set of commands like <b class="text-warning"> AALAARALA </b> to move the rover as many times as you would like. <br>
     </p>
     <div class="mb-2">
-      <button class="btn btn-success m-2" @click="set=!set">Inicialize</button>
-      <button class="btn btn-warning m-2" @click="command=!command">Commands</button>
-      <button class="btn btn-danger m-2">Reset</button>
+      <button class="btn btn-primary m-2" @click="set=!set">Inicialize</button>
+      <button class="btn btn-success m-2" @click="command=!command">Commands</button>
+      <button class="btn btn-danger m-2" @click="reset()">Reset</button>
     </div>
     <Inicialize v-if="set" @info="info = $event" @set="set = $event" />
     <Command v-if="command" @action="move($event)" @command="command = $event" />
 
     <div class="container py-3">
-      <table class="table table-dark">
+      <table class="table table-light bg-transparent table-bordered table-hover" style="table-layout: fixed;">
         <tbody>
-          <tr v-for="h in info.height+1" :key="h">
-            <th v-for="w in info.width+1" :key="w">
-              <span v-if="info.y == info.height+1-h && info.x == w-1" class="d-flex justify-content-center align-items-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Red_Arrow_Right.svg/2048px-Red_Arrow_Right.svg.png" style="height:20px" :style="'transform: rotate('+rotation+'deg);'">
+          <tr v-for="h in height+1" :key="h">
+            <th v-for="w in width+1" :key="w" style="height:40px">
+              <span v-if="y == height+1-h && x == w-1" class="d-flex justify-content-center align-items-center p-0 m-0">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Red_Arrow_Right.svg/2048px-Red_Arrow_Right.svg.png" style="height:15px" :style="'transform: rotate('+rotation+'deg);'" class="p-0 m-0">
               </span>
-              <span v-else class="text-muted d-flex justify-content-center align-items-center">({{w-1}},{{info.height+1-h}})</span>
+              <span v-else></span>
             </th>
           </tr>
         </tbody>
       </table>
     </div>
-    <p> square: {{info.width}} x {{info.height}} ---- rover: ({{info.x}}, {{info.y}}) {{info.orientation}} ---- rover inside square: {{info.inSquare}} </p>
+    <div class="justify-content-center d-flex pb-5">
+      <div class="card col-2 p-0 bg-primary">square: {{width+1}} x {{height+1}}</div>
+      <div class="card col-2 p-0 bg-warning text-dark mx-3">rover: ({{x}}, {{y}}) {{orientation}}</div>
+      <div class="card col-2 p-0 bg-success" v-if="inSquare && !alert"> inside square</div>
+      <div class="card col-2 p-0 bg-danger" v-else>Outside square</div>
+    </div>
   </div>
 </template>
 
@@ -47,109 +52,137 @@ export default {
     return {
       set: false,
       command: false,
-      info: {
-        height:5,
-        width:6,
-        x:4,
-        y:2,
-        orientation:'N',
-        inSquare:true
-      }
+      counter: 0,
+      alert: false,
     }
   },
   computed: {
+    height: function() {
+      return this.$store.getters.getHeight;
+    },
+    width: function() {
+      return this.$store.getters.getWidth;
+    },
+    x: function() {
+      return this.$store.getters.getX;
+    },
+    y: function() {
+      return this.$store.getters.getY;
+    },
+    orientation: function() {
+      return this.$store.getters.getOrientation;
+    },
+    inSquare: function() {
+      if (this.y>this.height || this.x>this.width || this.y<0 || this.x<0) { this.$store.dispatch('setInSquare', false);}
+      else  {this.$store.dispatch('setInSquare', true);}
+      return this.$store.getters.getInSquare;
+    },
     rotation: function() {
       let degrees;
-      if (this.info.orientation=='N') {degrees=270;}
-      else if (this.info.orientation=='S') {degrees=90;}
-      else if (this.info.orientation=='W') {degrees=180;}
+      if (this.orientation=='N') {degrees=270;}
+      else if (this.orientation=='S') {degrees=90;}
+      else if (this.orientation=='W') {degrees=180;}
       else {degrees=0;}
       return degrees;
     }
   },
   methods: {
     move(e) {
-      let i=0
-      do {
-        switch (e.charAt(i)) {
-          case "A":
-            this.advance();
-            break;
-          case "L":
-            this.left();
-            break;
-          case "R":
-            this.right();
-            break;
-        }
-        i++
-      } while (i < e.length && this.info.inSquare)
+      this.alert = false;
+      setTimeout(function(e) {
+          switch (e.charAt(this.counter)) {
+            case "A":
+              this.advance();
+              break;
+            case "L":
+              this.left();
+              break;
+            case "R":
+              this.right();
+              break;
+          }
+          this.counter++;
+          if(this.counter < e.length) {
+            this.move(e)
+          } else {
+            this.counter = 0;
+          }
+      }.bind(this,e), 1000);
     },
     advance() {
-      switch (this.info.orientation) {
+      switch (this.orientation) {
         case 'N':
-          if(this.info.y<this.info.height) {
-            this.info.y++;
+          if(this.y<this.height) {
+            this.$store.dispatch('setY', this.y+1);
           } else {
-            alert('Surt per dalt');
-            this.info.inSquare = false;
+            alert('Rover left the square to the North');
+            this.alert = true;
           }
           break;
         case 'S':
-          if(this.info.y>0) {
-            this.info.y--;
+          if(this.y>0) {
+            this.$store.dispatch('setY', this.y-1);
           } else {
-            alert('Surt per baix')
-            this.info.inSquare = false;}
+            alert('Rover left the square to the South');
+            this.alert = true;
+          }
           break;
         case 'E':
-          if(this.info.x<this.info.width) {
-            this.info.x++;
+          if(this.x<this.width) {
+            this.$store.dispatch('setX', this.x+1);
           } else {
-            alert('Surt per dreta')
-            this.info.inSquare = false;}
+            alert('Rover left the square to the East');
+            this.alert = true;
+          }
           break;
         case 'W':
-          if(this.info.x>0) {
-            this.info.x--;
+          if(this.x>0) {
+            this.$store.dispatch('setX', this.x-1);
           } else {
-            alert('Surt per esquerra')
-            this.info.inSquare = false;}
+            alert('Rover left the square to the West');
+            this.alert = true;
+          }
           break;
       }
     },
     right() {
-      switch (this.info.orientation) {
+      switch (this.orientation) {
         case 'N':
-          this.info.orientation = 'E';
+          this.$store.dispatch('setOrientation', 'E');
           break;
         case 'S':
-          this.info.orientation = 'W';
+          this.$store.dispatch('setOrientation', 'W');
           break;
         case 'E':
-          this.info.orientation = 'S';
+          this.$store.dispatch('setOrientation', 'S');
           break;
         case 'W':
-          this.info.orientation = 'N';
+          this.$store.dispatch('setOrientation', 'N');
           break;
       }
     },
     left() {
-      switch (this.info.orientation) {
+      switch (this.orientation) {
         case 'N':
-          this.info.orientation = 'W';
+          this.$store.dispatch('setOrientation', 'W');
           break;
         case 'S':
-          this.info.orientation = 'E';
+          this.$store.dispatch('setOrientation', 'E');
           break;
         case 'E':
-          this.info.orientation = 'N';
+          this.$store.dispatch('setOrientation', 'N');
           break;
         case 'W':
-          this.info.orientation = 'S';
+          this.$store.dispatch('setOrientation', 'S');
           break;
       }
     },
+    reset() {
+      this.$store.dispatch('setX', 0);
+      this.$store.dispatch('setY', 0);
+      this.$store.dispatch('setOrientation', 'N');
+      this.alert = false;
+    }
   }
 }
 </script>

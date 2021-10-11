@@ -10,13 +10,13 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text bg-transparent border-0 text-light" id="basic-addon1">Width </span>
                 </div>
-                <input type="number" class="form-control" v-model="width" aria-label="Width" aria-describedby="basic-addon1">
+                <input type="number" min="0" max="20" class="form-control" v-model="width" @update="this.$store.dispatch('setWidth', this.width);" aria-label="Width" aria-describedby="basic-addon1">
               </div>
               <div class="d-flex mt-2">
                 <div class="input-group-prepend">
                   <span class="input-group-text bg-transparent border-0 text-light" id="basic-addon1">Height</span>
                 </div>
-                <input type="number" class="form-control" v-model="height" aria-label="Height" aria-describedby="basic-addon1">
+                <input type="number" min="0" max="20" class="form-control" v-model="height" @update="this.$store.dispatch('setHeight', this.height);" aria-label="Height" aria-describedby="basic-addon1">
               </div>
             </div>
             <div class="col-4 input-group mb-3 flex-column">
@@ -25,13 +25,13 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text bg-transparent border-0 text-light" id="basic-addon1">X </span>
                 </div>
-                <input type="number" class="form-control" v-model="x" aria-label="Width" aria-describedby="basic-addon1">
+                <input type="number" class="form-control" v-model="x" aria-label="x" aria-describedby="basic-addon1">
               </div>
               <div class="d-flex mt-2">
                 <div class="input-group-prepend">
                   <span class="input-group-text bg-transparent border-0 text-light" id="basic-addon1">Y</span>
                 </div>
-                <input type="number" class="form-control" v-model="y" aria-label="Height" aria-describedby="basic-addon1">
+                <input type="number" class="form-control" v-model="y" @update="this.$store.dispatch('setY', this.y);" aria-label="y" aria-describedby="basic-addon1">
               </div>
             </div>
             <div class="col-4 input-group mb-3 flex-column">
@@ -49,7 +49,6 @@
               </div>
               <div class="d-flex mt-2 flex-row-reverse">
                 <button type="button" class="btn btn-secondary ml-2" @click="cancel">Close</button>
-                <button type="button" class="btn btn-primary" @click="save">Save</button>
               </div>
             </div>
           </div>
@@ -64,23 +63,53 @@
 <script>
 export default {
   name: 'Inicialize',
-  data() {
-    return {
-      height: 5,
-      width: 6,
-      x:2,
-      y:3,
-      orientation: 'N'
-    }
-  },
   computed: {
-    info: function() {
-      return {
-        height: this.height,
-        width: this.width,
-        x: this.x,
-        y: this.y,
-        orientation: this.orientation
+    height: {
+      get() {
+        return this.$store.getters.getHeight+1;
+      },
+      set(value) {
+        this.$store.dispatch('setHeight', value-1);
+      }
+    },
+    width: {
+      get() {
+        return this.$store.getters.getWidth+1;
+      },
+      set(value) {
+        this.$store.dispatch('setWidth', value-1);
+      }
+    },
+    x: {
+      get() {
+        return this.$store.getters.getX;
+      },
+      set(value) {
+        this.$store.dispatch('setX', value);
+      }
+    },
+    y: {
+      get() {
+        return this.$store.getters.getY;
+      },
+      set(value) {
+        this.$store.dispatch('setY', value);
+      }
+    },
+    orientation: {
+      get() {
+        return this.$store.getters.getOrientation;
+      },
+      set(value) {
+        this.$store.dispatch('setOrientation', value);
+      }
+    },
+    inSquare: {
+      get() {
+        return this.$store.getters.getInSquare;
+      },
+      set(value) {
+        this.$store.dispatch('setInSquare', value);
       }
     }
   },
