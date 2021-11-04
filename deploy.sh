@@ -1,12 +1,12 @@
 #build
-npm run build --
+npm run build
 
 # savel latest commit hash as a string
 LOGSTRING=$(git log)
 COMMIT=$(echo $LOGSTRING | awk '{print $2}')
 
 #navigate into the build output directory
-cd distribution
+cd dist
 
 # GIT
 git init
@@ -16,3 +16,5 @@ git push -f https://github.com/antonibx/ITAcademy-Vue-ProvaTecnica master:gh-pag
 
 
 cd ..
+
+# run in console as './deploy.sh'
